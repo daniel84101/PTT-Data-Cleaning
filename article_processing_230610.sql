@@ -1,4 +1,5 @@
 ----- generating table for data importing, the dataset is with multiple bad lines and varing length
+----- The dataset used here is upon request
 CREATE TABLE public.ARTICLE
 (
     "A" varchar(100),"B" varchar(100),"C" varchar(100),"D" varchar(100),
