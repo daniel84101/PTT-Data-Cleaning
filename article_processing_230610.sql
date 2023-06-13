@@ -61,11 +61,12 @@ WITH p(pattern) AS (
   SELECT '(?i)^(Re:\s*|R:\s*)*(Fw:\s*)*(\[|\{|［|【)(.*?)(\]|］|\}|】)\s*(.*)$'
 )
 UPDATE ARTICLE
-SET (re_status, fw_status, arti_class, arti_title) = (SELECT 
-													  (CASE WHEN m[1] IS NULL THEN 0 ELSE 1 END), 
-													  (CASE WHEN m[2] IS NULL THEN 0 ELSE 1 END), 
-													  m[4], m[6]
-													  FROM regexp_matches("C", pattern) m)
+SET (re_status, fw_status, arti_class, arti_title) = (
+	SELECT 
+	(CASE WHEN m[1] IS NULL THEN 0 ELSE 1 END), 
+	(CASE WHEN m[2] IS NULL THEN 0 ELSE 1 END), 
+	m[4], m[6]
+	FROM regexp_matches("C", pattern) m)
 FROM p
 WHERE  "C" ~ '(?i)^(Re:\s*|Fw:\s*|R:\s*|Re:)*(\[|\{|［|【)(.*)(\]|］|\}|】)\s*(.*)$';
 
@@ -100,8 +101,10 @@ WITH p4(pattern) AS (
   SELECT '^(Re:\s*)*(協尋)\s*(.*)$'
 )
 UPDATE ARTICLE
-SET (re_status, fw_status, arti_class, arti_title) = (SELECT (CASE WHEN m[1] IS NULL THEN 0 ELSE 1 END),
-													  0, m[2], m[3] FROM regexp_matches("C", pattern) m)
+SET (re_status, fw_status, arti_class, arti_title) = (
+	SELECT 
+	(CASE WHEN m[1] IS NULL THEN 0 ELSE 1 END),0, m[2], m[3] 
+	FROM regexp_matches("C", pattern) m)
 FROM p4
 WHERE  arti_class is NULL;
 
@@ -121,10 +124,11 @@ WITH p5(pattern) AS (
   SELECT '(?i)^(Re:\s*)*(Fw:\s*)*(.*)$'
 )
 UPDATE ARTICLE
-SET (re_status, fw_status, arti_class, arti_title) = (SELECT 
-													  (CASE WHEN m[1] IS NULL THEN 0 ELSE 1 END),
-													  (CASE WHEN m[2] IS NULL THEN 0 ELSE 1 END), 
-													  'Empty', m[3] FROM regexp_matches("C", pattern) m)
+SET (re_status, fw_status, arti_class, arti_title) = (
+	SELECT 
+	(CASE WHEN m[1] IS NULL THEN 0 ELSE 1 END),
+	(CASE WHEN m[2] IS NULL THEN 0 ELSE 1 END), 
+	'Empty', m[3] FROM regexp_matches("C", pattern) m)
 FROM p5
 WHERE  arti_class is NULL;
 
@@ -168,37 +172,29 @@ WITH IP(pattern) AS (
   SELECT '^(((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?){4})$'
 )
 UPDATE ARTICLE
-SET post_IP = COALESCE((SELECT y[1] FROM regexp_matches("Y", pattern) as y),
-					   (SELECT x[1] FROM regexp_matches("X", pattern) as x),
-					   (SELECT w[1] FROM regexp_matches("W", pattern) as w),
-					   (SELECT v[1] FROM regexp_matches("V", pattern) as v),
-					   (SELECT u[1] FROM regexp_matches("U", pattern) as u),
-					   (SELECT t[1] FROM regexp_matches("T", pattern) as t),
-					   (SELECT s[1] FROM regexp_matches("S", pattern) as s),
-					   (SELECT r[1] FROM regexp_matches("R", pattern) as r),
-					   (SELECT q[1] FROM regexp_matches("Q", pattern) as q),
-					   (SELECT p[1] FROM regexp_matches("P", pattern) as p),
-					   (SELECT o[1] FROM regexp_matches("O", pattern) as o),
-					   (SELECT n[1] FROM regexp_matches("N", pattern) as n),
-					   (SELECT m[1] FROM regexp_matches("M", pattern) as m),
-					   (SELECT l[1] FROM regexp_matches("L", pattern) as l),
-					   (SELECT k[1] FROM regexp_matches("K", pattern) as k),
-					   (SELECT j[1] FROM regexp_matches("J", pattern) as j),
-					   (SELECT i[1] FROM regexp_matches("I", pattern) as i),
-					   (SELECT h[1] FROM regexp_matches("H", pattern) as h),
-					   (SELECT G[1] FROM regexp_matches("G", pattern) as g),
-					   (SELECT F[1] FROM regexp_matches("F", pattern) as f),
-					   (SELECT E[1] FROM regexp_matches("E", pattern) as e),'EMPTY')
+SET post_IP = COALESCE(
+	(SELECT y[1] FROM regexp_matches("Y", pattern) as y),(SELECT x[1] FROM regexp_matches("X", pattern) as x),
+	(SELECT w[1] FROM regexp_matches("W", pattern) as w),(SELECT v[1] FROM regexp_matches("V", pattern) as v),
+	(SELECT u[1] FROM regexp_matches("U", pattern) as u),(SELECT t[1] FROM regexp_matches("T", pattern) as t),
+	(SELECT s[1] FROM regexp_matches("S", pattern) as s),(SELECT r[1] FROM regexp_matches("R", pattern) as r),
+	(SELECT q[1] FROM regexp_matches("Q", pattern) as q),(SELECT p[1] FROM regexp_matches("P", pattern) as p),
+	(SELECT o[1] FROM regexp_matches("O", pattern) as o),(SELECT n[1] FROM regexp_matches("N", pattern) as n),
+	(SELECT m[1] FROM regexp_matches("M", pattern) as m),(SELECT l[1] FROM regexp_matches("L", pattern) as l),
+	(SELECT k[1] FROM regexp_matches("K", pattern) as k),(SELECT j[1] FROM regexp_matches("J", pattern) as j),
+	(SELECT i[1] FROM regexp_matches("I", pattern) as i),(SELECT h[1] FROM regexp_matches("H", pattern) as h),
+	(SELECT G[1] FROM regexp_matches("G", pattern) as g),(SELECT F[1] FROM regexp_matches("F", pattern) as f),
+	(SELECT E[1] FROM regexp_matches("E", pattern) as e),'EMPTY')
 FROM IP;
 
 ALTER TABLE ARTICLE ADD COLUMN post_content text;
 
 UPDATE ARTICLE
-SET post_content = COALESCE(NULLIF("Z",''),NULLIF("Y",''),NULLIF("X",''),NULLIF("W",''),NULLIF("V",''),
-							NULLIF("U",''),NULLIF("T",''),NULLIF("S",''),NULLIF("R",''),NULLIF("Q",''),
-							NULLIF("P",''),NULLIF("O",''),NULLIF("N",''),NULLIF("M",''),NULLIF("L",''),
-							NULLIF("K",''),NULLIF("J",''),NULLIF("I",''),NULLIF("H",''),NULLIF("G",''),
-							NULLIF("F",''),'EMPTY');
+SET post_content = COALESCE(
+	NULLIF("Z",''),NULLIF("Y",''),NULLIF("X",''),NULLIF("W",''),NULLIF("V",''),
+	NULLIF("U",''),NULLIF("T",''),NULLIF("S",''),NULLIF("R",''),NULLIF("Q",''),
+	NULLIF("P",''),NULLIF("O",''),NULLIF("N",''),NULLIF("M",''),NULLIF("L",''),
+	NULLIF("K",''),NULLIF("J",''),NULLIF("I",''),NULLIF("H",''),NULLIF("G",''),
+	NULLIF("F",''),'EMPTY');
 
 UPDATE ARTICLE
 SET post_content = COALESCE(NULLIF("F",''),NULLIF("E",''),'EMPTY')
