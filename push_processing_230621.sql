@@ -1,3 +1,4 @@
+----- The dataset used here is upon request
 ----- extracting information for each article to merge with article table
 CREATE TABLE public.PUSH
 (
@@ -84,17 +85,17 @@ WITH p(pattern) AS (
 )
 UPDATE PUSH
 SET (IP_address, push_date) = (SELECT 
-							   (CASE WHEN m[1] IS NULL THEN 'NO_IP' ELSE m[1] END), 
-							   (CASE 
-								WHEN m[5] IS NULL THEN NULL 
-								WHEN m[1] IS NULL AND m[6] ~ '^0[1-5]$' THEN TO_TIMESTAMP('2019/' || m[5] , 'YYYY/MM/DD HH24:MI')
-								WHEN m[6] = '06' THEN TO_TIMESTAMP('2019/' || m[5] , 'YYYY/MM/DD HH24:MI')
-								WHEN m[1] IS NULL AND m[6] ~ '^1[12]$' THEN TO_TIMESTAMP('2018/' || m[5] , 'YYYY/MM/DD HH24:MI')
-								WHEN m[1] IS NOT NULL AND ((m[6] = '12') OR (m[6] = '11' AND m[7] ~'(2[6-9]|30)')) THEN TO_TIMESTAMP('2019/' || m[5] , 'YYYY/MM/DD HH24:MI')
-								WHEN m[1] IS NOT NULL AND m[6] ~ '^(01|02|03)$' THEN TO_TIMESTAMP('2020/' || m[5] , 'YYYY/MM/DD HH24:MI')
-								WHEN m[1] IS NULL AND m[6] ~ '^(0[7-9]|10)$' THEN TO_TIMESTAMP('2015/' || m[5] , 'YYYY/MM/DD HH24:MI') -- set for later deletion
-								ELSE TO_TIMESTAMP('2018/' || m[5] , 'YYYY/MM/DD HH24:MI') END)
-							   FROM regexp_matches("G", pattern) m)
+	(CASE WHEN m[1] IS NULL THEN 'NO_IP' ELSE m[1] END), 
+	(CASE 
+	WHEN m[5] IS NULL THEN NULL 
+	WHEN m[1] IS NULL AND m[6] ~ '^0[1-5]$' THEN TO_TIMESTAMP('2019/' || m[5] , 'YYYY/MM/DD HH24:MI')
+	WHEN m[6] = '06' THEN TO_TIMESTAMP('2019/' || m[5] , 'YYYY/MM/DD HH24:MI')
+	WHEN m[1] IS NULL AND m[6] ~ '^1[12]$' THEN TO_TIMESTAMP('2018/' || m[5] , 'YYYY/MM/DD HH24:MI')
+	WHEN m[1] IS NOT NULL AND ((m[6] = '12') OR (m[6] = '11' AND m[7] ~'(2[6-9]|30)')) THEN TO_TIMESTAMP('2019/' || m[5] , 'YYYY/MM/DD HH24:MI')
+	WHEN m[1] IS NOT NULL AND m[6] ~ '^(01|02|03)$' THEN TO_TIMESTAMP('2020/' || m[5] , 'YYYY/MM/DD HH24:MI')
+	WHEN m[1] IS NULL AND m[6] ~ '^(0[7-9]|10)$' THEN TO_TIMESTAMP('2015/' || m[5] , 'YYYY/MM/DD HH24:MI') -- set for later deletion
+	ELSE TO_TIMESTAMP('2018/' || m[5] , 'YYYY/MM/DD HH24:MI') END)
+	FROM regexp_matches("G", pattern) m)
 FROM p;
 
 -- deleting weird pushes: showing july, august, september october but no IP address -> either being edited
