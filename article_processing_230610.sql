@@ -200,6 +200,18 @@ UPDATE ARTICLE
 SET post_content = COALESCE(NULLIF("F",''),NULLIF("E",''),'EMPTY')
 WHERE post_ip = 'EMPTY';
 
+-- change ip to the right data fromat 
+ALTER TABLE ARTICLE ADD COLUMN ip_new inet;
+
+UPDATE ARTICLE 
+SET ip_new = (CASE WHEN post_ip = 'EMPTY' THEN NULL ELSE post_ip::inet END);
+
+ALTER TABLE ARTICLE DROP COLUMN post_ip;
+
+ALTER TABLE ARTICLE RENAME COLUMN ip_new TO post_ip;
+
+-- deleting redundent columns
+
 ALTER TABLE ARTICLE 
 DROP COLUMN "Z", DROP COLUMN "Y", DROP COLUMN "X", DROP COLUMN "W", DROP COLUMN "V", DROP COLUMN "U", 
 DROP COLUMN "T", DROP COLUMN "S", DROP COLUMN "R", DROP COLUMN "Q", DROP COLUMN "P", DROP COLUMN "O",
