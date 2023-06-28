@@ -151,4 +151,14 @@ AND A.push_user = S.push_user
 AND A.push_content = S.push_content
 AND A."G" = S."G";
 
+
+-- change ip to the correct data type
+ALTER TABLE PUSH ADD COLUMN push_ip inet;
+
+UPDATE PUSH 
+SET push_ip = (CASE WHEN ip_address = 'NO_IP' THEN NULL ELSE ip_address::inet END);
+
+-- deleting redundent columns
+ALTER TABLE PUSH DROP COLUMN "G", DROP COLUMN ip_address;
+
 -- the push data is ready to use
